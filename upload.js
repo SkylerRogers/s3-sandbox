@@ -17,28 +17,17 @@ const s3Client = new S3Client({
     },
 });
 
-// Define the bucket name and file path
+// Define the bucket name and the path to the existing file
 const bucketName = 'skyler-sandbox';
-const filePath = path.join(__dirname, 'helloworld.txt');
-
-// Function to create the file
-const createFile = async () => {
-    return new Promise((resolve, reject) => {
-        fs.writeFile(filePath, 'Hello, World!', (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
-};
+const filePath = path.join(__dirname, 'helloworld.txt'); // path to the existing file
 
 // Function to upload the file
 const uploadFile = async () => {
     try {
-        // Create the file
-        await createFile();
+        // Check if the file exists
+        if (!fs.existsSync(filePath)) {
+            throw new Error(`File not found: ${filePath}`);
+        }
 
         // Create a readable stream for the file
         const fileStream = fs.createReadStream(filePath);
@@ -55,13 +44,6 @@ const uploadFile = async () => {
         console.log('Success', data);
     } catch (err) {
         console.error('Error', err);
-    } finally {
-        // Optionally delete the file after upload
-        fs.unlink(filePath, (err) => {
-            if (err) {
-                console.error('Error deleting file', err);
-            }
-        });
     }
 };
 
